@@ -1,6 +1,5 @@
 # team-kapibarchiki
 Студенческий проект: team-kapibarchiki
-<<<<<<< HEAD
 
 ## О платформе
 Категория | Технология 
@@ -20,5 +19,3 @@ CistYana - мобильное приложение, созданное для An
 Елеков Владислав | Disgner, FrontEnd
 
 
-=======
->>>>>>> 3bb0786 (Initial commit)
