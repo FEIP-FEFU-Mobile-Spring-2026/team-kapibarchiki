@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">AndroidRazrab</string>
+    <string name="price_format">%s ₽</string>
+    <string name="close">Закрыть</string>
+    <string name="error_load">Ошибка загрузки</string>
+    <string name="retry">Повторить</string>
+    <string name="cart_in_development">Корзина в разработке</string>
+</resources>
