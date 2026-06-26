@@ -123,12 +123,21 @@ class ProductAdapter(
         addToCartButton.setOnClickListener {
             val selectedChipId = sizesChipGroup.checkedChipId
             val selectedChip = sizesChipGroup.findViewById<Chip>(selectedChipId)
-            val selectedSize = selectedChip?.text?.toString() ?: "не выбран"
-            Toast.makeText(
-                context,
-                "Товар добавлен в корзину. Размер: $selectedSize",
-                Toast.LENGTH_SHORT
-            ).show()
+
+            val selectedSizeId = selectedChip?.tag as? String
+
+            if (selectedSizeId != null) {
+                CartRepository(context).addToCart(product.id, selectedSizeId)
+                (context as? MainActivity)?.updateCartBadge()
+
+                Toast.makeText(
+                    context,
+                    "Товар добавлен в корзину",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                dialog.dismiss()
+            }
         }
         dialog.setContentView(view)
         dialog.show()
