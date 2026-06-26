@@ -11,7 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import java.text.NumberFormat
 import java.util.Locale
-
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 class ProductAdapter(
     private var products: List<Product>,
     private val context: Context
@@ -19,7 +20,7 @@ class ProductAdapter(
 
     fun updateProducts(newProducts: List<Product>) {
         products = newProducts
-        notifyItemRangeChanged(0, products.size)
+        notifyDataSetChanged()
     }
 
     class Holder(view: View) : RecyclerView.ViewHolder(view) {
@@ -64,17 +65,17 @@ class ProductAdapter(
         dialogView.findViewById<TextView>(R.id.detailTitle).text = product.name
         dialogView.findViewById<TextView>(R.id.detailDescription).text = product.longDescription
         dialogView.findViewById<TextView>(R.id.detailPrice).text = product.priceInKopecks.toRubles()
-        dialogView.findViewById<TextView>(R.id.detailCategory).text = product.categoryId
 
         Glide.with(context)
             .load(product.imageUrl)
             .centerCrop()
             .into(dialogView.findViewById(R.id.detailProductImage))
 
-        AlertDialog.Builder(context)
-            .setView(dialogView)
-            .setPositiveButton("Закрыть", null)
-            .show()
+        val bottomSheetDialog = BottomSheetDialog(context)
+        bottomSheetDialog.setContentView(dialogView)
+        bottomSheetDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        bottomSheetDialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
+        bottomSheetDialog.show()
     }
 }
 

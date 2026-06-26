@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
 
     private var currentCategories: List<Category> = emptyList()
     private var isUpdatingTabs = false
+    private var currentCategoryId = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +49,19 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (currentCategoryId.isNotEmpty()) {
+                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                    val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
+                    if (firstVisiblePosition != RecyclerView.NO_POSITION) {
+                        viewModel.saveScrollPosition(currentCategoryId, firstVisiblePosition)
+                    }
+                }
+            }
+        })
+
         val factory = ProductViewModelFactory(this, applicationContext)
         viewModel = ViewModelProvider(this, factory)[ProductViewModel::class.java]
 
@@ -67,10 +81,19 @@ class MainActivity : AppCompatActivity() {
                 is CatalogUiState.Error -> showError(state.message)
 
                 is CatalogUiState.Success -> {
+                    currentCategoryId = state.selectedCategoryId
                     showCatalog()
                     currentCategories = state.categories
                     setupTabs(state.categories, state.selectedCategoryId)
                     adapter.updateProducts(state.visibleProducts)
+
+                    recyclerView.post {
+                        val savedPosition = viewModel.getScrollPosition(currentCategoryId)
+                        if (savedPosition in 0 until state.visibleProducts.size) {
+                            (recyclerView.layoutManager as LinearLayoutManager)
+                                .scrollToPositionWithOffset(savedPosition, 0)
+                        }
+                    }
                 }
             }
         }
@@ -84,6 +107,7 @@ class MainActivity : AppCompatActivity() {
                 val category = currentCategories.getOrNull(tab?.position ?: 0)
                 if (category != null) {
                     viewModel.selectCategory(category.id)
+
                 }
             }
 

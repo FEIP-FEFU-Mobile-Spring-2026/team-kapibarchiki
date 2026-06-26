@@ -9,6 +9,6 @@
     <item
         android:id="@+id/menu_cart"
         android:title="Корзина"
-        android:icon="@android:drawable/ic_menu_view" />
+        android:icon="@drawable/shopping_cart_24px" />
 
 </menu>

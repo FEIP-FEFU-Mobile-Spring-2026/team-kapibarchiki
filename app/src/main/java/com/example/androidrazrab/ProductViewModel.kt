@@ -21,7 +21,7 @@ class ProductViewModel(
     private var categories: List<Category> = emptyList()
     private var allProducts: List<Product> = emptyList()
 
-    private var selectedCategoryId: String
+    internal var selectedCategoryId: String
         get() = savedStateHandle["selected_category_id"] ?: NEW_CATEGORY_ID
         set(value) {
             savedStateHandle["selected_category_id"] = value
@@ -67,7 +67,13 @@ class ProductViewModel(
         selectedCategoryId = categoryId
         emitSuccess()
     }
+    fun saveScrollPosition(categoryId: String, position: Int) {
+        savedStateHandle["scroll_$categoryId"] = position
+    }
 
+    fun getScrollPosition(categoryId: String): Int {
+        return savedStateHandle["scroll_$categoryId"] ?: 0
+    }
     private fun emitSuccess() {
         val visibleProducts = if (selectedCategoryId == NEW_CATEGORY_ID) {
             allProducts.filter { product ->
@@ -84,6 +90,7 @@ class ProductViewModel(
             visibleProducts = visibleProducts
         )
     }
+
 
     companion object {
         const val NEW_CATEGORY_ID = "cat_new"
