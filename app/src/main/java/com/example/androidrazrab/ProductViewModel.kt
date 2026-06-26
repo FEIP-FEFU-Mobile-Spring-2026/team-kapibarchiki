@@ -20,7 +20,7 @@ class ProductViewModel(
 
     private var categories: List<Category> = emptyList()
     private var allProducts: List<Product> = emptyList()
-
+    private var lastIsOffline: Boolean = false
     internal var selectedCategoryId: String
         get() = savedStateHandle["selected_category_id"] ?: NEW_CATEGORY_ID
         set(value) {
@@ -28,44 +28,57 @@ class ProductViewModel(
         }
 
     fun load() {
-
-        if (_uiState.value is CatalogUiState.Success) return
-
         _uiState.value = CatalogUiState.Loading
 
         viewModelScope.launch {
-            try {
-                val response = withContext(Dispatchers.IO) {
-                    delay(2000)
-                    repository.loadCatalog()
+
+                val cachedCatalog = withContext(Dispatchers.IO) {
+                    repository.getCachedCatalog()
                 }
 
-                categories = listOf(Category(NEW_CATEGORY_ID, "Новинки")) + response.categories
-                allProducts = response.items
-
-                if (categories.none { it.id == selectedCategoryId }) {
-                    selectedCategoryId = NEW_CATEGORY_ID
+                if (cachedCatalog != null) {
+                    applyCatalog(cachedCatalog, isOffline = false)
                 }
 
-                emitSuccess()
-            } catch (e: Exception) {
-                _uiState.value = CatalogUiState.Error(
-                    message = "Не удалось загрузить каталог"
-                )
+                try {
+                    val apiCatalog = withContext(Dispatchers.IO) {
+                        repository.refreshCatalogFromApi()
+                    }
+
+                    applyCatalog(apiCatalog, isOffline = false)
+                } catch (e: Exception) {
+                    if (cachedCatalog != null) {
+                        applyCatalog(cachedCatalog, isOffline = true)
+                    } else {
+                        _uiState.value = CatalogUiState.Error(
+                            message = "Нет сети и кэш пустой"
+                        )
+                    }
+                }
             }
         }
-    }
+
 
     fun retry() {
-        _uiState.value = CatalogUiState.Loading
-        categories = emptyList()
-        allProducts = emptyList()
         load()
     }
+    private fun applyCatalog(
+        response: ProductResponse,
+        isOffline: Boolean
+    ) {
+        lastIsOffline = isOffline
+        categories = listOf(Category(NEW_CATEGORY_ID, "Новинки")) + response.categories
+        allProducts = response.items
 
+        if (categories.none { it.id == selectedCategoryId }) {
+            selectedCategoryId = NEW_CATEGORY_ID
+        }
+
+        emitSuccess(isOffline)
+    }
     fun selectCategory(categoryId: String) {
         selectedCategoryId = categoryId
-        emitSuccess()
+        emitSuccess(lastIsOffline)
     }
     fun saveScrollPosition(categoryId: String, position: Int) {
         savedStateHandle["scroll_$categoryId"] = position
@@ -74,7 +87,7 @@ class ProductViewModel(
     fun getScrollPosition(categoryId: String): Int {
         return savedStateHandle["scroll_$categoryId"] ?: 0
     }
-    private fun emitSuccess() {
+    private fun emitSuccess(isOffline: Boolean) {
         val visibleProducts = if (selectedCategoryId == NEW_CATEGORY_ID) {
             allProducts.filter { product ->
                 product.tags.any { it.equals("New", ignoreCase = true) }
@@ -87,7 +100,8 @@ class ProductViewModel(
             categories = categories,
             allProducts = allProducts,
             selectedCategoryId = selectedCategoryId,
-            visibleProducts = visibleProducts
+            visibleProducts = visibleProducts,
+            isOffline = isOffline
         )
     }
 

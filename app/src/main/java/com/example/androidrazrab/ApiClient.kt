@@ -1,13 +1,12 @@
 package com.example.androidrazrab
 
-import com.example.androidrazrab.Product
 import retrofit2.http.GET
-import retrofit2.http.Path
+import retrofit2.http.Header
 
 interface ProductApiService {
-    @GET("products")
-    suspend fun getProducts(): List<Product>
 
-    @GET("products/{id}")
-    suspend fun getProduct(@Path("id") productId: Int): Product
+    @GET("catalog")
+    suspend fun getCatalog(
+        @Header("Authorization") token: String = "Bearer Cmt7wdwFgDIi1_SRX8hlJIExs0jJKPr4axflLpExAxM"
+    ): ProductResponse
 }
