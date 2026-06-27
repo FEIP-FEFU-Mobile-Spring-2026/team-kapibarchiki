@@ -54,20 +54,25 @@ API / Local SQLite Cache
 
 1. Клонировать репозиторий:
 
+```bash
 git clone <https://github.com/FEIP-FEFU-Mobile-Spring-2026/team-kapibarchiki.git>
-
+```
 2. Открыть проект в Android Studio.
 3. Дождаться завершения синхронизации Gradle.
 4. Выполнить сборку проекта
 
 Через Android Studio:
+```text
 Build → Assemble
+```
 или через терминал:
+```bash
 ./gradlew assembleDebug
+```
 ### Запуск
 1. Запустить Android-эмулятор или подключить физическое устройство.
 
-2. Нажать кнопку Run в Android Studio.
+2. Нажать кнопку **Run** в Android Studio.
 
 3. Выбрать устройство для запуска приложения.
 
