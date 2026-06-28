@@ -1,5 +1,6 @@
 package com.example.androidrazrab
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -44,6 +45,7 @@ class MainActivity : AppCompatActivity() {
         errorText = findViewById(R.id.errorText)
         retryButton = findViewById(R.id.retryButton)
         bottomNavigation = findViewById(R.id.bottomNavigation)
+        val badge = bottomNavigation.getOrCreateBadge(R.id.menu_cart)
 
         adapter = ProductAdapter(emptyList(), this)
 
@@ -73,7 +75,22 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.load()
     }
+    fun updateCartBadge() {
+        val count = CartRepository(this).getTotalCount()
+        val badge = bottomNavigation.getOrCreateBadge(R.id.menu_cart)
 
+        if (count > 0) {
+            badge.isVisible = true
+            badge.number = count
+        } else {
+            badge.clearNumber()
+            badge.isVisible = false
+        }
+    }
+    override fun onResume() {
+        super.onResume()
+        updateCartBadge()
+    }
     private fun observeViewModel() {
         viewModel.uiState.observe(this) { state ->
             when (state) {
@@ -158,8 +175,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.menu_cart -> {
-                    recyclerView.isVisible = false
-                    tabLayout.isVisible = false
+                    startActivity(Intent(this, CartActivity::class.java))
                     true
                 }
 
