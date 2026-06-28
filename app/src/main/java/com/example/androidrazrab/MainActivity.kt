@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 
 class MainActivity : AppCompatActivity() {
@@ -93,6 +94,13 @@ class MainActivity : AppCompatActivity() {
                             (recyclerView.layoutManager as LinearLayoutManager)
                                 .scrollToPositionWithOffset(savedPosition, 0)
                         }
+                    }
+                    if (state.isOffline) {
+                        Snackbar.make(
+                            findViewById(android.R.id.content),
+                            "Нет сети. Показаны сохранённые данные",
+                            Snackbar.LENGTH_LONG
+                        ).show()
                     }
                 }
             }
