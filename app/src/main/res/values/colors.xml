@@ -3,6 +3,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="cream_bg">#F7F1EA</color>
+    <color name="light_brown">#9D7967</color>
+    <color name="yellow_brown">#F5EFEB</color>
     <color name="card_bg">#FFFDF9</color>
     <color name="primary_brown">#624A3F</color>
     <color name="dark_text">#1F1A17</color>

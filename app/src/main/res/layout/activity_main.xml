@@ -7,26 +7,30 @@
     android:background="@color/cream_bg"
     android:orientation="vertical">
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/upView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/cream_bg"
-        android:paddingStart="3dp"
-        android:paddingTop="3dp"
-        android:paddingEnd="3dp"
-        android:paddingBottom="3dp"
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/upView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:background="@color/cream_bg"
+            android:paddingStart="3dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="3dp"
+            android:paddingBottom="3dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
 
-        app:tabBackground="@drawable/tab_background_selector"
-        app:tabGravity="start"
-        app:tabIndicatorHeight="0dp"
-        app:tabMaxWidth="160dp"
-        app:tabMinWidth="96dp"
-        app:tabMode="scrollable"
-        app:tabRippleColor="@android:color/transparent"
-        app:tabSelectedTextColor="@color/white"
-        app:tabTextColor="@color/primary_brown" />
-
+            app:layout_constraintTop_toTopOf="parent"
+            app:tabBackground="@drawable/tab_background_selector"
+            app:tabGravity="start"
+            app:tabIndicatorHeight="0dp"
+            app:tabMaxWidth="160dp"
+            app:tabMinWidth="120dp"
+            app:tabMode="scrollable"
+            app:tabRippleColor="@android:color/transparent"
+            app:tabSelectedTextColor="@color/white"
+            app:tabTextColor="@color/black" />
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
