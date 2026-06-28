@@ -1,22 +1,98 @@
 package com.example.androidrazrab
-import com.example.androidrazrab.RetrofitClient
+
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-class ProductViewModel : ViewModel() {
-    val products = MutableLiveData<List<Product>>()
-    val loading = MutableLiveData(false)
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.delay
+
+class ProductViewModel(
+    private val repository: ProductRepository,
+    private val savedStateHandle: SavedStateHandle
+) : ViewModel() {
+
+    private val _uiState = MutableLiveData<CatalogUiState>()
+    val uiState: LiveData<CatalogUiState> = _uiState
+
+    private var categories: List<Category> = emptyList()
+    private var allProducts: List<Product> = emptyList()
+
+    internal var selectedCategoryId: String
+        get() = savedStateHandle["selected_category_id"] ?: NEW_CATEGORY_ID
+        set(value) {
+            savedStateHandle["selected_category_id"] = value
+        }
 
     fun load() {
-        loading.value = true
+
+        if (_uiState.value is CatalogUiState.Success) return
+
+        _uiState.value = CatalogUiState.Loading
+
         viewModelScope.launch {
-            products.value = try {
-                RetrofitClient.productApiService.getProducts()
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    delay(2000)
+                    repository.loadCatalog()
+                }
+
+                categories = listOf(Category(NEW_CATEGORY_ID, "Новинки")) + response.categories
+                allProducts = response.items
+
+                if (categories.none { it.id == selectedCategoryId }) {
+                    selectedCategoryId = NEW_CATEGORY_ID
+                }
+
+                emitSuccess()
             } catch (e: Exception) {
-                emptyList()
+                _uiState.value = CatalogUiState.Error(
+                    message = "Не удалось загрузить каталог"
+                )
             }
-            loading.value = false
         }
+    }
+
+    fun retry() {
+        _uiState.value = CatalogUiState.Loading
+        categories = emptyList()
+        allProducts = emptyList()
+        load()
+    }
+
+    fun selectCategory(categoryId: String) {
+        selectedCategoryId = categoryId
+        emitSuccess()
+    }
+    fun saveScrollPosition(categoryId: String, position: Int) {
+        savedStateHandle["scroll_$categoryId"] = position
+    }
+
+    fun getScrollPosition(categoryId: String): Int {
+        return savedStateHandle["scroll_$categoryId"] ?: 0
+    }
+    private fun emitSuccess() {
+        val visibleProducts = if (selectedCategoryId == NEW_CATEGORY_ID) {
+            allProducts.filter { product ->
+                product.tags.any { it.equals("New", ignoreCase = true) }
+            }
+        } else {
+            allProducts.filter { it.categoryId == selectedCategoryId }
+        }
+
+        _uiState.value = CatalogUiState.Success(
+            categories = categories,
+            allProducts = allProducts,
+            selectedCategoryId = selectedCategoryId,
+            visibleProducts = visibleProducts
+        )
+    }
+
+
+    companion object {
+        const val NEW_CATEGORY_ID = "cat_new"
     }
 }
